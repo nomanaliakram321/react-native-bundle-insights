@@ -1,6 +1,6 @@
 {
   "name": "react-native-bundle-insights",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Beautiful bundle analyzer for React Native - Visualize, analyze, and optimize your bundle size",
   "main": "dist/index.js",
   "bin": {
