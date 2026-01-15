@@ -1,6 +1,6 @@
-# React Native Bundle Analyzer
+# React Native Bundle Insights
 
-A beautiful, powerful bundle analyzer for React Native - Visualize, analyze, and optimize your bundle size with ease!
+A beautiful, powerful bundle insights tool for React Native - Visualize, analyze, and optimize your bundle size with ease!
 
 ## Features
 
@@ -18,9 +18,9 @@ A beautiful, powerful bundle analyzer for React Native - Visualize, analyze, and
 ## Installation
 
 ```bash
-npm install -g react-native-bundle-analyzer
+npm install -g react-native-bundle-insights
 # or
-yarn global add react-native-bundle-analyzer
+yarn global add react-native-bundle-insights
 ```
 
 ## Quick Start
@@ -62,13 +62,13 @@ Without sourcemaps you still get:
 
 ```bash
 # Analyze with auto-detection
-npx react-native-bundle-analyzer analyze
+npx react-native-bundle-insights analyze
 
 # Or specify the bundle path
-npx react-native-bundle-analyzer analyze --bundle ./ios/main.jsbundle
+npx react-native-bundle-insights analyze --bundle ./ios/main.jsbundle
 
 # Open interactive visualization
-npx react-native-bundle-analyzer analyze --open
+npx react-native-bundle-insights analyze --open
 ```
 
 ## CLI Commands
@@ -78,7 +78,7 @@ npx react-native-bundle-analyzer analyze --open
 Analyze your React Native bundle and get detailed insights.
 
 ```bash
-npx rn-bundle-analyzer analyze [options]
+npx react-native-bundle-insights analyze [options]
 ```
 
 **Options:**
@@ -95,19 +95,19 @@ npx rn-bundle-analyzer analyze [options]
 
 ```bash
 # Basic analysis
-npx rn-bundle-analyzer analyze
+npx react-native-bundle-insights analyze
 
 # Analyze Android bundle
-npx rn-bundle-analyzer analyze --platform android
+npx react-native-bundle-insights analyze --platform android
 
 # Generate JSON report
-npx rn-bundle-analyzer analyze --json
+npx react-native-bundle-insights analyze --json
 
 # Open web dashboard
-npx rn-bundle-analyzer analyze --open
+npx react-native-bundle-insights analyze --open
 
 # Specify custom bundle path
-npx rn-bundle-analyzer analyze --bundle ./path/to/bundle.js
+npx react-native-bundle-insights analyze --bundle ./path/to/bundle.js
 ```
 
 ### `server`
@@ -115,7 +115,7 @@ npx rn-bundle-analyzer analyze --bundle ./path/to/bundle.js
 Start the visualization server independently.
 
 ```bash
-npx rn-bundle-analyzer server [options]
+npx react-native-bundle-insights server [options]
 ```
 
 **Options:**
@@ -132,8 +132,8 @@ Add these scripts to your `package.json`:
   "scripts": {
     "bundle:ios": "react-native bundle --platform ios --dev false --entry-file index.js --bundle-output ./ios/main.jsbundle",
     "bundle:android": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output ./android/app/src/main/assets/index.android.bundle",
-    "analyze": "npm run bundle:ios && rn-bundle-analyzer analyze --open",
-    "analyze:android": "npm run bundle:android && rn-bundle-analyzer analyze --platform android --open"
+    "analyze": "npm run bundle:ios && react-native-bundle-insights analyze --open",
+    "analyze:android": "npm run bundle:android && react-native-bundle-insights analyze --platform android --open"
   }
 }
 ```
@@ -149,7 +149,7 @@ npm run analyze
 You can also use the analyzer programmatically in your Node.js scripts:
 
 ```typescript
-import { analyzeBundle, Reporter } from 'rn-bundle-analyzer';
+import { analyzeBundle, Reporter } from 'react-native-bundle-insights';
 
 async function analyze() {
   const analysis = await analyzeBundle('./ios/main.jsbundle');
@@ -173,7 +173,7 @@ analyze();
 ```
 ╔═══════════════════════════════════════════════════════════════╗
 ║                                                               ║
-║        React Native Bundle Analyzer                           ║
+║        React Native Bundle Insights                           ║
 ║                                                               ║
 ╚═══════════════════════════════════════════════════════════════╝
 
@@ -285,7 +285,7 @@ jobs:
         run: npm run bundle:ios
 
       - name: Analyze bundle
-        run: npx rn-bundle-analyzer analyze --json
+        run: npx react-native-bundle-insights analyze --json
 
       - name: Upload report
         uses: actions/upload-artifact@v3
@@ -377,8 +377,7 @@ MIT
 
 ## Support
 
-- GitHub Issues: [https://github.com/nomanakram/react-native-bundle-analyzer/issues](https://github.com/nomanakram/react-native-bundle-analyzer/issues)
-- Twitter: [@nomanakram](https://twitter.com/nomanakram)
+- GitHub Issues: [https://github.com/nomanaliakram321/react-native-bundle-insights/issues](https://github.com/nomanaliakram321/react-native-bundle-insights/issues)
 
 ---
 
