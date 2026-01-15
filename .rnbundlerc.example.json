@@ -1,0 +1,21 @@
+{
+  "platform": "ios",
+  "bundlePath": "./ios/main.jsbundle",
+  "outputDir": ".rn-bundle-analyzer",
+  "port": 8888,
+  "openBrowser": true,
+  "thresholds": {
+    "maxBundleSize": 5242880,
+    "maxPackageSize": 524288,
+    "maxDuplicates": 5
+  },
+  "ignore": [
+    "node_modules/react-native/Libraries/polyfills"
+  ],
+  "optimizationRules": {
+    "enabled": true,
+    "checkDuplicates": true,
+    "checkHeavyPackages": true,
+    "checkKnownAlternatives": true
+  }
+}

@@ -1,0 +1,15 @@
+src/
+*.test.ts
+*.spec.ts
+__tests__/
+.eslintrc.json
+.prettierrc
+tsconfig.json
+jest.config.js
+.rn-bundle-analyzer/
+coverage/
+.vscode/
+.idea/
+*.log
+.DS_Store
+.claude/
