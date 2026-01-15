@@ -31,12 +31,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/nomanakram/react-native-bundle-insights.git"
+    "url": "https://github.com/nomanaliakram321/react-native-bundle-insights.git"
   },
   "bugs": {
-    "url": "https://github.com/nomanakram/react-native-bundle-insights/issues"
+    "url": "https://github.com/nomanaliakram321/react-native-bundle-insights/issues"
   },
-  "homepage": "https://github.com/nomanakram/react-native-bundle-insights#readme",
+  "homepage": "https://github.com/nomanaliakram321/react-native-bundle-insights#readme",
   "dependencies": {
     "chalk": "^4.1.2",
     "cli-table3": "^0.6.3",
