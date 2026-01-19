@@ -543,7 +543,7 @@ MIT © Noman Akram
 ## Support
 
 - 🐛 GitHub Issues: [https://github.com/nomanaliakram321/react-native-bundle-insights/issues](https://github.com/nomanaliakram321/react-native-bundle-insights/issues)
-- 📧 Email: nomanaliakram321@gmail.com
+- 📧 Email: nomanakram1999@gmail.com
 
 ---
 
