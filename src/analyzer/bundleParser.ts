@@ -148,20 +148,27 @@ export class BundleParser {
       return pathMatch[1];
     }
 
-    // Strategy 6: Check for common package patterns in the code
-    const packagePatterns = [
-      /@react-navigation/,
-      /@react-native/,
-      /lodash/,
-      /moment/,
-      /axios/,
-      /redux/,
+    // Strategy 6: Check for actual package imports/requires (more precise)
+    const packageImportPatterns = [
+      /(?:require|import).*['"]@react-navigation[^'"]*['"]/,
+      /(?:require|import).*['"]@react-native[^'"]*['"]/,
+      /(?:require|import).*['"]lodash[^'"]*['"]/,
+      /(?:require|import).*['"]moment[^'"]*['"]/,
+      /(?:require|import).*['"]axios[^'"]*['"]/,
+      /(?:require|import).*['"]redux[^'"]*['"]/,
     ];
 
-    for (const pattern of packagePatterns) {
-      if (pattern.test(moduleBody)) {
-        const pkgName = pattern.source.replace(/\//g, '');
-        return `node_modules/${pkgName}/index.js`;
+    for (const pattern of packageImportPatterns) {
+      const match = moduleBody.match(pattern);
+      if (match) {
+        // Extract the actual package name from the require/import statement
+        const importMatch = match[0].match(/['"]([^'"]+)['"]/);
+        if (importMatch) {
+          const packagePath = importMatch[1];
+          // Extract base package name
+          const packageName = packagePath.split('/')[0];
+          return `node_modules/${packageName}/index.js`;
+        }
       }
     }
 

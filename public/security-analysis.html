@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Analysis - React Native Bundle Insights</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0d1117;
+            color: #c9d1d9;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #58a6ff;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+
+        .subtitle {
+            color: #8b949e;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        .warning-banner {
+            background: linear-gradient(135deg, #d73a4a 0%, #cb2431 100%);
+            border: 1px solid #f85149;
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .warning-banner h3 {
+            color: white;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .warning-banner p {
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.5;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 20px;
+        }
+
+        .stat-card.critical {
+            border-color: #f85149;
+            background: rgba(248, 81, 73, 0.1);
+        }
+
+        .stat-card.high {
+            border-color: #d29922;
+            background: rgba(210, 153, 34, 0.1);
+        }
+
+        .stat-card.medium {
+            border-color: #58a6ff;
+            background: rgba(88, 166, 255, 0.1);
+        }
+
+        .stat-label {
+            color: #8b949e;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .stat-card.critical .stat-value {
+            color: #f85149;
+        }
+
+        .stat-card.high .stat-value {
+            color: #d29922;
+        }
+
+        .stat-card.medium .stat-value {
+            color: #58a6ff;
+        }
+
+        .section {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #58a6ff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            background: #21262d;
+            border: 1px solid #30363d;
+            color: #8b949e;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .filter-btn:hover {
+            background: #30363d;
+            color: #c9d1d9;
+        }
+
+        .filter-btn.active {
+            background: #58a6ff;
+            color: white;
+            border-color: #58a6ff;
+        }
+
+        .issue-card {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-left: 4px solid #30363d;
+        }
+
+        .issue-card.critical {
+            border-left-color: #f85149;
+        }
+
+        .issue-card.high {
+            border-left-color: #d29922;
+        }
+
+        .issue-card.medium {
+            border-left-color: #58a6ff;
+        }
+
+        .issue-card.low {
+            border-left-color: #3fb950;
+        }
+
+        .issue-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .severity-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .severity-badge.critical {
+            background: rgba(248, 81, 73, 0.2);
+            color: #f85149;
+        }
+
+        .severity-badge.high {
+            background: rgba(210, 153, 34, 0.2);
+            color: #d29922;
+        }
+
+        .severity-badge.medium {
+            background: rgba(88, 166, 255, 0.2);
+            color: #58a6ff;
+        }
+
+        .severity-badge.low {
+            background: rgba(63, 185, 80, 0.2);
+            color: #3fb950;
+        }
+
+        .issue-category {
+            font-weight: 600;
+            color: #c9d1d9;
+            flex: 1;
+        }
+
+        .issue-location {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #8b949e;
+            font-size: 13px;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+
+        .issue-location:hover {
+            color: #58a6ff;
+        }
+
+        .issue-code {
+            background: #0d1117;
+            border: 1px solid #21262d;
+            border-radius: 4px;
+            padding: 12px;
+            margin: 12px 0;
+            overflow-x: auto;
+        }
+
+        .issue-code pre {
+            color: #c9d1d9;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            margin: 0;
+        }
+
+        .issue-recommendation {
+            color: #8b949e;
+            font-size: 13px;
+            line-height: 1.5;
+            padding: 12px;
+            background: rgba(88, 166, 255, 0.1);
+            border-left: 3px solid #58a6ff;
+            border-radius: 4px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: #8b949e;
+        }
+
+        .spinner {
+            border: 3px solid #21262d;
+            border-top: 3px solid #58a6ff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .category-section {
+            margin-bottom: 30px;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding: 12px;
+            background: #21262d;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .category-header:hover {
+            background: #30363d;
+        }
+
+        .category-icon {
+            font-size: 24px;
+        }
+
+        .category-name {
+            font-size: 18px;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .category-count {
+            background: #58a6ff;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .category-issues {
+            margin-left: 20px;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 6px;
+            padding: 24px;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .summary-card h2 {
+            margin-bottom: 16px;
+            font-size: 24px;
+        }
+
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+        }
+
+        .summary-stat {
+            text-align: center;
+        }
+
+        .summary-stat-value {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .summary-stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔒 Security Analysis</h1>
+        <p class="subtitle">Detect hardcoded secrets, PII, and security vulnerabilities in your codebase</p>
+
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Scanning for security issues...</p>
+        </div>
+
+        <div id="content" style="display: none;">
+            <div class="warning-banner">
+                <h3>⚠️ Critical Security Notice</h3>
+                <p>
+                    This tool scans for common security issues, but is not a replacement for comprehensive security audits.
+                    Always review findings carefully and follow security best practices. If critical issues are found,
+                    rotate credentials immediately and investigate potential exposure.
+                </p>
+            </div>
+
+            <div class="summary-card">
+                <h2>Security Scan Results</h2>
+                <div class="summary-stats">
+                    <div class="summary-stat">
+                        <div class="summary-stat-value" id="totalIssues">0</div>
+                        <div class="summary-stat-label">Total Issues</div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="summary-stat-value" id="filesScanned">0</div>
+                        <div class="summary-stat-label">Files Scanned</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card critical">
+                    <div class="stat-label">Critical Issues</div>
+                    <div class="stat-value" id="criticalCount">0</div>
+                </div>
+                <div class="stat-card high">
+                    <div class="stat-label">High Severity</div>
+                    <div class="stat-value" id="highCount">0</div>
+                </div>
+                <div class="stat-card medium">
+                    <div class="stat-label">Medium Severity</div>
+                    <div class="stat-value" id="mediumCount">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Low Severity</div>
+                    <div class="stat-value" id="lowCount" style="color: #3fb950;">0</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">🔍 Filter by Category</h2>
+                <div class="filter-bar">
+                    <button class="filter-btn active" data-filter="all">All Issues</button>
+                    <button class="filter-btn" data-filter="secret">🔑 Secrets & API Keys</button>
+                    <button class="filter-btn" data-filter="pii">👤 Personal Information</button>
+                    <button class="filter-btn" data-filter="security-practice">🛡️ Security Practices</button>
+                    <button class="filter-btn" data-filter="critical">Critical Only</button>
+                </div>
+            </div>
+
+            <div id="secretsSection" class="section category-section">
+                <div class="category-header">
+                    <span class="category-icon">🔑</span>
+                    <span class="category-name">Secrets & API Keys</span>
+                    <span class="category-count" id="secretsCount">0</span>
+                </div>
+                <div id="secretsIssues" class="category-issues"></div>
+            </div>
+
+            <div id="piiSection" class="section category-section">
+                <div class="category-header">
+                    <span class="category-icon">👤</span>
+                    <span class="category-name">Personal Information (PII)</span>
+                    <span class="category-count" id="piiCount">0</span>
+                </div>
+                <div id="piiIssues" class="category-issues"></div>
+            </div>
+
+            <div id="securitySection" class="section category-section">
+                <div class="category-header">
+                    <span class="category-icon">🛡️</span>
+                    <span class="category-name">Security Best Practices</span>
+                    <span class="category-count" id="securityCount">0</span>
+                </div>
+                <div id="securityIssues" class="category-issues"></div>
+            </div>
+
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <div class="empty-state-icon">✅</div>
+                <h2 style="color: #3fb950; margin-bottom: 10px;">No Security Issues Found!</h2>
+                <p style="color: #8b949e;">Your codebase appears to be free of common security vulnerabilities.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allIssues = [];
+        let currentFilter = 'all';
+
+        function openInVSCode(filePath, line) {
+            const vscodeUrl = `vscode://file${filePath}:${line}`;
+            window.location.href = vscodeUrl;
+        }
+
+        function renderIssue(issue) {
+            const issueCard = document.createElement('div');
+            issueCard.className = `issue-card ${issue.severity}`;
+            issueCard.dataset.type = issue.type;
+            issueCard.dataset.severity = issue.severity;
+
+            issueCard.innerHTML = `
+                <div class="issue-header">
+                    <span class="severity-badge ${issue.severity}">${issue.severity}</span>
+                    <span class="issue-category">${issue.category}</span>
+                </div>
+                <div class="issue-location" onclick="openInVSCode('${issue.file}', ${issue.line})">
+                    📁 ${issue.file}:${issue.line}:${issue.column}
+                </div>
+                <div class="issue-code">
+                    <pre>${escapeHtml(issue.code)}</pre>
+                </div>
+                <div class="issue-recommendation">
+                    <strong>💡 Recommendation:</strong> ${issue.recommendation}
+                </div>
+            `;
+
+            return issueCard;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function applyFilter(filter) {
+            currentFilter = filter;
+
+            // Update button states
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.filter === filter);
+            });
+
+            // Show/hide sections and issues
+            const sections = ['secretsSection', 'piiSection', 'securitySection'];
+
+            sections.forEach(sectionId => {
+                const section = document.getElementById(sectionId);
+                const issues = section.querySelectorAll('.issue-card');
+                let visibleCount = 0;
+
+                issues.forEach(issue => {
+                    let visible = false;
+
+                    if (filter === 'all') {
+                        visible = true;
+                    } else if (filter === 'secret' && issue.dataset.type === 'secret') {
+                        visible = true;
+                    } else if (filter === 'pii' && issue.dataset.type === 'pii') {
+                        visible = true;
+                    } else if (filter === 'security-practice' && issue.dataset.type === 'security-practice') {
+                        visible = true;
+                    } else if (filter === 'critical' && issue.dataset.severity === 'critical') {
+                        visible = true;
+                    }
+
+                    issue.style.display = visible ? 'block' : 'none';
+                    if (visible) visibleCount++;
+                });
+
+                // Show/hide entire section
+                if (filter === 'all' || visibleCount > 0) {
+                    section.style.display = 'block';
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+        }
+
+        async function loadData() {
+            try {
+                const response = await fetch('/api/security-analysis');
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+                }
+
+                const data = await response.json();
+                allIssues = [
+                    ...data.issuesByType.secrets,
+                    ...data.issuesByType.pii,
+                    ...data.issuesByType.securityPractices
+                ];
+
+                // Update stats
+                document.getElementById('totalIssues').textContent = data.totalIssues;
+                document.getElementById('filesScanned').textContent = data.filesScanned;
+                document.getElementById('criticalCount').textContent = data.criticalIssues;
+                document.getElementById('highCount').textContent = data.highIssues;
+                document.getElementById('mediumCount').textContent = data.mediumIssues;
+                document.getElementById('lowCount').textContent = data.lowIssues;
+
+                // Update category counts
+                document.getElementById('secretsCount').textContent = data.issuesByType.secrets.length;
+                document.getElementById('piiCount').textContent = data.issuesByType.pii.length;
+                document.getElementById('securityCount').textContent = data.issuesByType.securityPractices.length;
+
+                // Render issues by category
+                const secretsContainer = document.getElementById('secretsIssues');
+                const piiContainer = document.getElementById('piiIssues');
+                const securityContainer = document.getElementById('securityIssues');
+
+                data.issuesByType.secrets.forEach(issue => {
+                    secretsContainer.appendChild(renderIssue(issue));
+                });
+
+                data.issuesByType.pii.forEach(issue => {
+                    piiContainer.appendChild(renderIssue(issue));
+                });
+
+                data.issuesByType.securityPractices.forEach(issue => {
+                    securityContainer.appendChild(renderIssue(issue));
+                });
+
+                // Show/hide sections
+                if (data.issuesByType.secrets.length === 0) {
+                    document.getElementById('secretsSection').style.display = 'none';
+                }
+                if (data.issuesByType.pii.length === 0) {
+                    document.getElementById('piiSection').style.display = 'none';
+                }
+                if (data.issuesByType.securityPractices.length === 0) {
+                    document.getElementById('securitySection').style.display = 'none';
+                }
+
+                // Show empty state if no issues
+                if (data.totalIssues === 0) {
+                    document.getElementById('emptyState').style.display = 'block';
+                }
+
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+
+            } catch (error) {
+                console.error('Error loading security data:', error);
+                document.getElementById('loading').innerHTML = `
+                    <p style="color: #f85149;">Error loading security analysis</p>
+                    <p style="font-size: 14px; margin-top: 10px;">${error.message}</p>
+                `;
+            }
+        }
+
+        // Filter button handlers
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                applyFilter(btn.dataset.filter);
+            });
+        });
+
+        // Load data on page load
+        loadData();
+    </script>
+</body>
+</html>

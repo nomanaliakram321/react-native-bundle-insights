@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bundle Insights Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0d1117;
+            color: #c9d1d9;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            padding: 20px 20px 0;
+            max-width: 1400px;
+            margin: 0 auto;
+            border-bottom: 2px solid #21262d;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            color: #8b949e;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            color: #58a6ff;
+        }
+
+        .tab.active {
+            color: #58a6ff;
+            border-bottom-color: #58a6ff;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        iframe {
+            width: 100%;
+            border: none;
+            min-height: calc(100vh - 160px);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: #8b949e;
+        }
+
+        .spinner {
+            border: 3px solid #21262d;
+            border-top: 3px solid #58a6ff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📦 React Native Bundle Insights</h1>
+        <p id="project-subtitle">Complete bundle analysis and optimization dashboard</p>
+    </div>
+
+    <div class="tabs">
+        <button class="tab active" onclick="switchTab('bundle')">📊 Bundle Treemap</button>
+        <button class="tab" onclick="switchTab('dependencies')">📦 Dependencies</button>
+        <button class="tab" onclick="switchTab('unused')">🗑️ Unused Imports</button>
+        <button class="tab" onclick="switchTab('security')">🔒 Security</button>
+        <button class="tab" onclick="switchTab('assets')">🖼️ Assets</button>
+    </div>
+
+    <div id="bundle-tab" class="tab-content active">
+        <iframe id="bundle-iframe" src="/bundle-treemap"></iframe>
+    </div>
+
+    <div id="dependencies-tab" class="tab-content">
+        <iframe id="deps-iframe" src="/source-analysis"></iframe>
+    </div>
+
+    <div id="unused-tab" class="tab-content">
+        <iframe id="unused-iframe" src="/unused-imports"></iframe>
+    </div>
+
+    <div id="security-tab" class="tab-content">
+        <iframe id="security-iframe" src="/security-analysis"></iframe>
+    </div>
+
+    <div id="assets-tab" class="tab-content">
+        <iframe id="assets-iframe" src="/asset-analysis"></iframe>
+    </div>
+
+    <script>
+        // Load project name from package.json or bundle analysis
+        async function loadProjectName() {
+            try {
+                // Try to get project name from source analysis first
+                const response = await fetch('/api/source-analysis');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.projectName) {
+                        document.getElementById('project-subtitle').textContent =
+                            `${data.projectName} - Complete bundle analysis and optimization dashboard`;
+                        return;
+                    }
+                }
+
+                // Fallback to bundle analysis
+                const bundleResponse = await fetch('/api/bundle-analysis');
+                if (bundleResponse.ok) {
+                    const bundleData = await bundleResponse.json();
+                    if (bundleData.projectName) {
+                        document.getElementById('project-subtitle').textContent =
+                            `${bundleData.projectName} - Complete bundle analysis and optimization dashboard`;
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.log('Could not load project name:', error);
+            }
+        }
+
+        function switchTab(tab) {
+            // Remove active class from all tabs and contents
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+            // Add active class to selected tab
+            event.target.classList.add('active');
+
+            // Show selected content
+            const contentId = tab + '-tab';
+            document.getElementById(contentId).classList.add('active');
+        }
+
+        // Load project name when page loads
+        loadProjectName();
+    </script>
+</body>
+</html>

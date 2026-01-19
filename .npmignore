@@ -13,3 +13,6 @@ coverage/
 *.log
 .DS_Store
 .claude/
+docs/
+assets/
+WEB_VISUALIZATION_GUIDE.md
