@@ -2,8 +2,6 @@
 
 <div align="center">
 
-![React Native Bundle Insights](docs/screenshots/logo.png)
-
 **A comprehensive bundle analysis and optimization tool for React Native**
 
 Visualize, analyze, and optimize your bundle size, security, and assets with ease!
@@ -392,68 +390,35 @@ const HeavyComponent = React.lazy(() => import('./HeavyComponent'));
 
 ## Screenshots
 
-### 🎯 Complete Analysis Dashboard
+### 📊 Bundle Size Analysis
 
-The unified dashboard provides all insights in one place with 5 comprehensive tabs:
+Analyze your bundle composition and identify large packages:
 
-![Unified Dashboard](docs/screenshots/dashboard-overview.png)
-*The main dashboard showing all analysis tabs - Bundle Treemap, Dependencies, Unused Imports, Security, and Assets*
-
----
-
-### 📊 Bundle Treemap Visualization
-
-Interactive treemap showing your bundle composition. Larger boxes = larger packages.
-
-![Bundle Treemap](docs/screenshots/dashboard-bundle-treemap.png)
-*Interactive treemap visualization - Click on any package to drill down and see its modules. Hover to see exact sizes and percentages.*
-
-**What you see:**
-- 🟦 **Blue boxes** - Your source code
-- 🟩 **Green boxes** - node_modules packages
-- 🟨 **Yellow boxes** - React Native core
-- Size proportional to actual bundle impact
+![Bundle Size Analysis](assets/bundleSize.png)
 
 ---
 
 ### 📦 Dependencies Analysis
 
-See all your dependencies, imports, and unused files at a glance.
+See all your dependencies, imports, and unused files at a glance:
 
-![Dependencies Tab](docs/screenshots/dashboard-dependencies.png)
-*Dependencies tab showing used packages, unused dependencies, and file import graph*
-
-**Features:**
-- ✅ List of all used dependencies
-- ❌ Unused dependencies with removal commands
-- 📁 Potentially unused files
-- 🔗 Import chain visualization
-- 📊 Summary statistics
+![Dependencies Analysis](assets/dependencies.png)
 
 ---
 
 ### 🗑️ Unused Imports Detection
 
-Find unused imports across your entire codebase with exact line numbers.
+Find unused imports across your entire codebase with exact line numbers:
 
-![Unused Imports](docs/screenshots/dashboard-unused-imports.png)
-*Unused imports tab showing file-by-file analysis with line numbers and import statements*
-
-**What it detects:**
-- Unused named imports: `import { unused } from 'package'`
-- Unused default imports: `import Unused from 'package'`
-- Unused namespace imports: `import * as unused from 'package'`
-- Shows exact file path and line number
-- Calculates potential bundle size savings
+![Unused Imports](assets/unused_imports.png)
 
 ---
 
 ### 🔒 Security Analysis
 
-Comprehensive security scan detecting secrets, vulnerabilities, and best practice violations.
+Comprehensive security scan detecting secrets, vulnerabilities, and best practice violations:
 
-![Security Tab](docs/screenshots/dashboard-security.png)
-*Security tab showing critical issues, hardcoded secrets, and security best practices*
+![Security Analysis](assets/security.png)
 
 **Issue Severity Levels:**
 - 🔴 **Critical** - Hardcoded API keys, private keys, database credentials
@@ -461,29 +426,13 @@ Comprehensive security scan detecting secrets, vulnerabilities, and best practic
 - 🟡 **Medium** - PII (emails, phone numbers), insecure URLs
 - 🟢 **Low** - Console.log statements, hardcoded localhost
 
-**Example Issues Detected:**
-```javascript
-// 🔴 Critical: Hardcoded API Key
-const API_KEY = "sk_live_abc123xyz789";
-
-// 🟠 High: Hardcoded Password
-const password = "admin123";
-
-// 🟡 Medium: Email Address (PII)
-const email = "user@example.com";
-
-// 🟢 Low: Console.log in production
-console.log("Debug info:", data);
-```
-
 ---
 
 ### 🖼️ Assets & Image Analysis
 
-Analyze all your assets, find large images, detect duplicates, and get optimization suggestions.
+Analyze all your assets, find large images, detect duplicates, and get optimization suggestions:
 
-![Assets Tab](docs/screenshots/dashboard-assets.png)
-*Assets tab showing large images, duplicates, unoptimized formats, and potential savings*
+![Assets Analysis](assets/assets.png)
 
 **What it analyzes:**
 - 📊 **Summary** - Total assets count and size
@@ -492,62 +441,6 @@ Analyze all your assets, find large images, detect duplicates, and get optimizat
 - ♻️ **Unoptimized Formats** - PNG/JPG that should be WebP
 - 🗑️ **Unused Assets** - Assets not referenced in your code
 - 💰 **Potential Savings** - Estimated size reduction
-
-**Optimization Recommendations:**
-```bash
-# Convert to WebP (30-50% smaller)
-cwebp image.png -o image.webp
-
-# Compress images
-# Use TinyPNG, ImageOptim, or similar tools
-
-# Remove duplicates
-# Delete identical files found in analysis
-```
-
----
-
-### 💻 Terminal Output
-
-Beautiful CLI output with colored tables and progress indicators.
-
-![Terminal Analysis](docs/screenshots/terminal-analysis.png)
-*Running complete analysis from the command line*
-
-**Terminal Features:**
-- 🎨 Color-coded output for better readability
-- 📊 Formatted tables for data presentation
-- ⏳ Progress indicators for long operations
-- ✅ Success/error messages with icons
-- 📈 Summary statistics
-
----
-
-### 🎯 Package Breakdown
-
-Detailed breakdown of each package's contribution to your bundle size.
-
-![Package Breakdown](docs/screenshots/package-breakdown.png)
-*Top dependencies by size with module counts and percentages*
-
-**Information Shown:**
-- Package name
-- Total size in KB/MB
-- Percentage of total bundle
-- Number of modules
-
----
-
-### 📱 Responsive Design
-
-Works perfectly on all screen sizes - desktop, tablet, and mobile.
-
-<div align="center">
-  <img src="docs/screenshots/responsive-desktop.png" width="45%" alt="Desktop View" />
-  <img src="docs/screenshots/responsive-mobile.png" width="45%" alt="Mobile View" />
-</div>
-
-*Left: Desktop view with full sidebar. Right: Mobile view with collapsible menu*
 
 ---
 
