@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asset Analysis - React Native Bundle Insights</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0d1117;
+            color: #c9d1d9;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #58a6ff;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+
+        .subtitle {
+            color: #8b949e;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 6px;
+            padding: 24px;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .summary-card h2 {
+            margin-bottom: 16px;
+            font-size: 24px;
+        }
+
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+        }
+
+        .summary-stat {
+            text-align: center;
+        }
+
+        .summary-stat-value {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .summary-stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 20px;
+        }
+
+        .stat-card.high {
+            border-color: #d29922;
+            background: rgba(210, 153, 34, 0.1);
+        }
+
+        .stat-card.medium {
+            border-color: #58a6ff;
+            background: rgba(88, 166, 255, 0.1);
+        }
+
+        .stat-card.savings {
+            border-color: #3fb950;
+            background: rgba(63, 185, 80, 0.1);
+        }
+
+        .stat-label {
+            color: #8b949e;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .stat-card.high .stat-value {
+            color: #d29922;
+        }
+
+        .stat-card.medium .stat-value {
+            color: #58a6ff;
+        }
+
+        .stat-card.savings .stat-value {
+            color: #3fb950;
+        }
+
+        .section {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #58a6ff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            background: #21262d;
+            border: 1px solid #30363d;
+            color: #8b949e;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .filter-btn:hover {
+            background: #30363d;
+            color: #c9d1d9;
+        }
+
+        .filter-btn.active {
+            background: #58a6ff;
+            color: white;
+            border-color: #58a6ff;
+        }
+
+        .issue-card {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-left: 4px solid #30363d;
+        }
+
+        .issue-card.high {
+            border-left-color: #d29922;
+        }
+
+        .issue-card.medium {
+            border-left-color: #58a6ff;
+        }
+
+        .issue-card.low {
+            border-left-color: #3fb950;
+        }
+
+        .issue-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .severity-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .severity-badge.high {
+            background: rgba(210, 153, 34, 0.2);
+            color: #d29922;
+        }
+
+        .severity-badge.medium {
+            background: rgba(88, 166, 255, 0.2);
+            color: #58a6ff;
+        }
+
+        .severity-badge.low {
+            background: rgba(63, 185, 80, 0.2);
+            color: #3fb950;
+        }
+
+        .issue-type {
+            font-weight: 600;
+            color: #c9d1d9;
+            flex: 1;
+        }
+
+        .issue-location {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #8b949e;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .issue-message {
+            color: #c9d1d9;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .issue-recommendation {
+            color: #8b949e;
+            font-size: 13px;
+            line-height: 1.5;
+            padding: 12px;
+            background: rgba(88, 166, 255, 0.1);
+            border-left: 3px solid #58a6ff;
+            border-radius: 4px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: #8b949e;
+        }
+
+        .spinner {
+            border: 3px solid #21262d;
+            border-top: 3px solid #58a6ff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .category-section {
+            margin-bottom: 30px;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding: 12px;
+            background: #21262d;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .category-header:hover {
+            background: #30363d;
+        }
+
+        .category-icon {
+            font-size: 24px;
+        }
+
+        .category-name {
+            font-size: 18px;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .category-count {
+            background: #58a6ff;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .category-issues {
+            margin-left: 20px;
+        }
+
+        .savings-breakdown {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 16px;
+            margin-top: 12px;
+        }
+
+        .savings-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #21262d;
+        }
+
+        .savings-item:last-child {
+            border-bottom: none;
+        }
+
+        .savings-label {
+            color: #8b949e;
+        }
+
+        .savings-value {
+            color: #3fb950;
+            font-weight: 600;
+        }
+
+        .asset-types-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .asset-type-card {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 12px;
+        }
+
+        .asset-type-ext {
+            color: #58a6ff;
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .asset-type-count {
+            color: #8b949e;
+            font-size: 13px;
+        }
+
+        .asset-type-size {
+            color: #c9d1d9;
+            font-weight: 600;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🖼️ Asset Analysis</h1>
+        <p class="subtitle">Optimize images and assets for better performance</p>
+
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Analyzing assets...</p>
+        </div>
+
+        <div id="content" style="display: none;">
+            <div class="summary-card">
+                <h2>Asset Summary</h2>
+                <div class="summary-stats">
+                    <div class="summary-stat">
+                        <div class="summary-stat-value" id="totalAssets">0</div>
+                        <div class="summary-stat-label">Total Assets</div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="summary-stat-value" id="totalSize">0 MB</div>
+                        <div class="summary-stat-label">Total Size</div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="summary-stat-value" id="imageCount">0</div>
+                        <div class="summary-stat-label">Images</div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="summary-stat-value" id="imageSize">0 MB</div>
+                        <div class="summary-stat-label">Image Size</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card high">
+                    <div class="stat-label">Large Images</div>
+                    <div class="stat-value" id="largeImagesCount">0</div>
+                </div>
+                <div class="stat-card medium">
+                    <div class="stat-label">Unoptimized Formats</div>
+                    <div class="stat-value" id="unoptimizedCount">0</div>
+                </div>
+                <div class="stat-card high">
+                    <div class="stat-label">Duplicate Assets</div>
+                    <div class="stat-value" id="duplicatesCount">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Unused Assets</div>
+                    <div class="stat-value" id="unusedCount" style="color: #8b949e;">0</div>
+                </div>
+            </div>
+
+            <div id="savingsSection" class="section" style="display: none;">
+                <h2 class="section-title">💰 Potential Savings</h2>
+                <div style="font-size: 32px; font-weight: 700; color: #3fb950; margin-bottom: 16px;" id="totalSavings">0 MB</div>
+                <div class="savings-breakdown">
+                    <div class="savings-item">
+                        <span class="savings-label">WebP Conversion</span>
+                        <span class="savings-value" id="webpSavings">0 MB</span>
+                    </div>
+                    <div class="savings-item">
+                        <span class="savings-label">Duplicate Removal</span>
+                        <span class="savings-value" id="duplicateSavings">0 MB</span>
+                    </div>
+                    <div class="savings-item">
+                        <span class="savings-label">Compression</span>
+                        <span class="savings-value" id="compressionSavings">0 MB</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">📊 Assets by Type</h2>
+                <div id="assetTypesGrid" class="asset-types-grid"></div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">🔍 Filter by Issue Type</h2>
+                <div class="filter-bar">
+                    <button class="filter-btn active" data-filter="all">All Issues</button>
+                    <button class="filter-btn" data-filter="large-image">📏 Large Images</button>
+                    <button class="filter-btn" data-filter="unoptimized-format">📦 Unoptimized</button>
+                    <button class="filter-btn" data-filter="duplicate-asset">🔄 Duplicates</button>
+                    <button class="filter-btn" data-filter="unused-asset">🗑️ Unused</button>
+                </div>
+            </div>
+
+            <div id="largeImagesSection" class="section category-section">
+                <div class="category-header">
+                    <span class="category-icon">📏</span>
+                    <span class="category-name">Large Images</span>
+                    <span class="category-count" id="largeImagesHeaderCount">0</span>
+                </div>
+                <div id="largeImagesIssues" class="category-issues"></div>
+            </div>
+
+            <div id="unoptimizedSection" class="section category-section">
+                <div class="category-header">
+                    <span class="category-icon">📦</span>
+                    <span class="category-name">Unoptimized Formats</span>
+                    <span class="category-count" id="unoptimizedHeaderCount">0</span>
+                </div>
+                <div id="unoptimizedIssues" class="category-issues"></div>
+            </div>
+
+            <div id="duplicatesSection" class="section category-section">
+                <div class="category-header">
+                    <span class="category-icon">🔄</span>
+                    <span class="category-name">Duplicate Assets</span>
+                    <span class="category-count" id="duplicatesHeaderCount">0</span>
+                </div>
+                <div id="duplicatesIssues" class="category-issues"></div>
+            </div>
+
+            <div id="unusedSection" class="section category-section">
+                <div class="category-header">
+                    <span class="category-icon">🗑️</span>
+                    <span class="category-name">Unused Assets</span>
+                    <span class="category-count" id="unusedHeaderCount">0</span>
+                </div>
+                <div id="unusedIssues" class="category-issues"></div>
+            </div>
+
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <div class="empty-state-icon">✅</div>
+                <h2 style="color: #3fb950; margin-bottom: 10px;">All Assets Optimized!</h2>
+                <p style="color: #8b949e;">No optimization opportunities found.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentFilter = 'all';
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function renderIssue(issue) {
+            const issueCard = document.createElement('div');
+            issueCard.className = `issue-card ${issue.severity}`;
+            issueCard.dataset.type = issue.type;
+            issueCard.dataset.severity = issue.severity;
+
+            issueCard.innerHTML = `
+                <div class="issue-header">
+                    <span class="severity-badge ${issue.severity}">${issue.severity}</span>
+                    <span class="issue-type">${formatIssueType(issue.type)}</span>
+                    <span style="color: #8b949e; font-size: 13px;">${formatBytes(issue.size)}</span>
+                </div>
+                <div class="issue-location">
+                    📁 ${issue.file}
+                </div>
+                <div class="issue-message">
+                    ${issue.message}
+                </div>
+                <div class="issue-recommendation">
+                    <strong>💡 Recommendation:</strong> ${issue.recommendation}
+                </div>
+            `;
+
+            return issueCard;
+        }
+
+        function formatIssueType(type) {
+            const types = {
+                'large-image': 'Large Image',
+                'unoptimized-format': 'Unoptimized Format',
+                'duplicate-asset': 'Duplicate Asset',
+                'unused-asset': 'Unused Asset'
+            };
+            return types[type] || type;
+        }
+
+        function applyFilter(filter) {
+            currentFilter = filter;
+
+            // Update button states
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.filter === filter);
+            });
+
+            // Show/hide sections and issues
+            const sections = ['largeImagesSection', 'unoptimizedSection', 'duplicatesSection', 'unusedSection'];
+
+            sections.forEach(sectionId => {
+                const section = document.getElementById(sectionId);
+                const issues = section.querySelectorAll('.issue-card');
+                let visibleCount = 0;
+
+                issues.forEach(issue => {
+                    let visible = false;
+
+                    if (filter === 'all') {
+                        visible = true;
+                    } else if (issue.dataset.type === filter) {
+                        visible = true;
+                    }
+
+                    issue.style.display = visible ? 'block' : 'none';
+                    if (visible) visibleCount++;
+                });
+
+                // Show/hide entire section
+                if (filter === 'all' || visibleCount > 0) {
+                    section.style.display = 'block';
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+        }
+
+        async function loadData() {
+            try {
+                const response = await fetch('/api/asset-analysis');
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+                }
+
+                const data = await response.json();
+
+                // Update summary stats
+                document.getElementById('totalAssets').textContent = data.totalAssets;
+                document.getElementById('totalSize').textContent = formatBytes(data.totalSize);
+                document.getElementById('imageCount').textContent = data.imageCount;
+                document.getElementById('imageSize').textContent = formatBytes(data.imageSize);
+
+                // Update issue counts
+                document.getElementById('largeImagesCount').textContent = data.largeImages.length;
+                document.getElementById('unoptimizedCount').textContent = data.unoptimizedImages.length;
+                document.getElementById('duplicatesCount').textContent = data.duplicateAssets.length;
+                document.getElementById('unusedCount').textContent = data.unusedAssets.length;
+
+                // Update category header counts
+                document.getElementById('largeImagesHeaderCount').textContent = data.largeImages.length;
+                document.getElementById('unoptimizedHeaderCount').textContent = data.unoptimizedImages.length;
+                document.getElementById('duplicatesHeaderCount').textContent = data.duplicateAssets.length;
+                document.getElementById('unusedHeaderCount').textContent = data.unusedAssets.length;
+
+                // Show savings section if there are savings
+                if (data.recommendations.potentialSavings > 0) {
+                    document.getElementById('savingsSection').style.display = 'block';
+                    document.getElementById('totalSavings').textContent = formatBytes(data.recommendations.potentialSavings);
+                    document.getElementById('webpSavings').textContent = formatBytes(data.recommendations.webpConversion);
+                    document.getElementById('duplicateSavings').textContent = formatBytes(data.recommendations.duplicateRemoval);
+                    document.getElementById('compressionSavings').textContent = formatBytes(data.recommendations.compressionSavings);
+                }
+
+                // Render assets by type
+                const assetTypesGrid = document.getElementById('assetTypesGrid');
+                Object.entries(data.assetsByType).forEach(([ext, info]) => {
+                    const card = document.createElement('div');
+                    card.className = 'asset-type-card';
+                    card.innerHTML = `
+                        <div class="asset-type-ext">${ext}</div>
+                        <div class="asset-type-count">${info.count} files</div>
+                        <div class="asset-type-size">${formatBytes(info.totalSize)}</div>
+                    `;
+                    assetTypesGrid.appendChild(card);
+                });
+
+                // Render issues by category
+                const largeImagesContainer = document.getElementById('largeImagesIssues');
+                const unoptimizedContainer = document.getElementById('unoptimizedIssues');
+                const duplicatesContainer = document.getElementById('duplicatesIssues');
+                const unusedContainer = document.getElementById('unusedIssues');
+
+                data.largeImages.forEach(issue => {
+                    largeImagesContainer.appendChild(renderIssue(issue));
+                });
+
+                data.unoptimizedImages.forEach(issue => {
+                    unoptimizedContainer.appendChild(renderIssue(issue));
+                });
+
+                data.duplicateAssets.forEach(issue => {
+                    duplicatesContainer.appendChild(renderIssue(issue));
+                });
+
+                data.unusedAssets.forEach(issue => {
+                    unusedContainer.appendChild(renderIssue(issue));
+                });
+
+                // Hide empty sections
+                if (data.largeImages.length === 0) {
+                    document.getElementById('largeImagesSection').style.display = 'none';
+                }
+                if (data.unoptimizedImages.length === 0) {
+                    document.getElementById('unoptimizedSection').style.display = 'none';
+                }
+                if (data.duplicateAssets.length === 0) {
+                    document.getElementById('duplicatesSection').style.display = 'none';
+                }
+                if (data.unusedAssets.length === 0) {
+                    document.getElementById('unusedSection').style.display = 'none';
+                }
+
+                // Show empty state if no issues
+                const totalIssues = data.largeImages.length + data.unoptimizedImages.length +
+                                   data.duplicateAssets.length + data.unusedAssets.length;
+                if (totalIssues === 0) {
+                    document.getElementById('emptyState').style.display = 'block';
+                }
+
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+
+            } catch (error) {
+                console.error('Error loading asset data:', error);
+                document.getElementById('loading').innerHTML = `
+                    <p style="color: #f85149;">Error loading asset analysis</p>
+                    <p style="font-size: 14px; margin-top: 10px;">${error.message}</p>
+                `;
+            }
+        }
+
+        // Filter button handlers
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                applyFilter(btn.dataset.filter);
+            });
+        });
+
+        // Load data on page load
+        loadData();
+    </script>
+</body>
+</html>

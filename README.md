@@ -1,19 +1,46 @@
 # React Native Bundle Insights
 
-A beautiful, powerful bundle insights tool for React Native - Visualize, analyze, and optimize your bundle size with ease!
+<div align="center">
+
+**A comprehensive bundle analysis and optimization tool for React Native**
+
+Visualize, analyze, and optimize your bundle size, security, and assets with ease!
+
+[![npm version](https://badge.fury.io/js/react-native-bundle-insights.svg)](https://www.npmjs.com/package/react-native-bundle-insights)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Downloads](https://img.shields.io/npm/dm/react-native-bundle-insights.svg)](https://www.npmjs.com/package/react-native-bundle-insights)
+
+[Features](#features) • [Installation](#installation) • [Quick Start](#quick-start) • [Screenshots](#screenshots) • [Documentation](#cli-commands)
+
+</div>
+
+---
 
 ## Features
 
-- 📦 **Package-by-Package Breakdown** - Detailed analysis of every dependency with sizes
-- 🧹 **Dead Code Detection** - Find unused files and dependencies automatically
-- 🌲 **Tree-Shaking Analysis** - Identify non-tree-shakeable code with actionable suggestions
-- 💡 **Smart Optimization Suggestions** - Get specific package alternatives (e.g., moment → dayjs)
-- 🔍 **Duplicate Detection** - Find and eliminate duplicate packages wasting space
+### Bundle Analysis
+- 📦 **Bundle Treemap Visualization** - Interactive tree map showing module sizes
+- 📊 **Package-by-Package Breakdown** - Detailed analysis of every dependency
+- 🔍 **Duplicate Detection** - Find and eliminate duplicate packages
+
+### Code Quality
+- 🧹 **Unused Files Detection** - Find unused files and dependencies automatically
+- 📝 **Unused Imports Detection** - Find and remove unused imports across your codebase
+- 📦 **Dependency Analysis** - Visualize import chains and entry points
+- 🗑️ **Dead Code Identification** - Identify potentially unused code for cleanup
+
+### Security & Assets
+- 🔒 **Security Analysis** - Detect hardcoded secrets, API keys, and PII
+- 🛡️ **Security Best Practices** - Identify insecure coding patterns
+- 🖼️ **Image & Asset Analysis** - Analyze image sizes, detect duplicates, suggest optimizations
+- 📏 **Asset Optimization** - WebP conversion suggestions, compression recommendations
+
+### User Experience
 - 🎨 **Beautiful CLI Output** - Terminal UI with colored tables and progress bars
-- 🌐 **Interactive Web Dashboard** - 5-tab interface with pagination for large datasets
-- 📊 **Works Without Sourcemap** - Basic analysis works on any bundle
-- 📈 **CI/CD Integration** - JSON export for automated bundle size tracking
+- 🌐 **Interactive Unified Dashboard** - Single dashboard with 5 comprehensive tabs
 - 🎯 **Project Name Display** - Personalized reports with your app name
+- 📈 **CI/CD Integration** - JSON export for automated tracking
+- 📊 **Works Without Sourcemap** - Basic analysis works on any bundle
 
 ## Installation
 
@@ -21,16 +48,18 @@ A beautiful, powerful bundle insights tool for React Native - Visualize, analyze
 npm install -g react-native-bundle-insights
 # or
 yarn global add react-native-bundle-insights
+# or use npx (no installation needed)
+npx react-native-bundle-insights --help
 ```
 
 ## Quick Start
 
-### 1. Generate a Bundle
+### Comprehensive Analysis (Recommended)
 
-First, create a bundle for analysis. **For best results, include a sourcemap:**
+Run all analyses at once and open the unified dashboard:
 
 ```bash
-# For iOS (with sourcemap - recommended)
+# Generate bundle first (optional - other analyses work without it)
 npx react-native bundle \
   --platform ios \
   --dev false \
@@ -38,90 +67,120 @@ npx react-native bundle \
   --bundle-output ./ios/main.jsbundle \
   --sourcemap-output ./ios/main.jsbundle.map
 
-# For Android (with sourcemap - recommended)
-npx react-native bundle \
-  --platform android \
-  --dev false \
-  --entry-file index.js \
-  --bundle-output ./android/app/src/main/assets/index.android.bundle \
-  --sourcemap-output ./android/app/src/main/assets/index.android.bundle.map
+# Run complete analysis
+npx react-native-bundle-insights all
 ```
 
-**Note:** The analyzer works without sourcemaps but package detection is limited. With sourcemaps you get:
-- ✅ Accurate package-by-package breakdown
-- ✅ node_modules vs your code separation
-- ✅ Duplicate package detection
+This will analyze:
+- ✅ Bundle size and dependencies (if bundle exists)
+- ✅ Source code and unused files
+- ✅ Security issues and best practices
+- ✅ Assets and images
 
-Without sourcemaps you still get:
-- ✅ Total bundle size
-- ✅ Dead code detection
-- ✅ Tree-shaking analysis
-- ✅ Unused dependencies detection
-
-### 2. Analyze the Bundle
-
-```bash
-# Analyze with auto-detection
-npx react-native-bundle-insights analyze
-
-# Or specify the bundle path
-npx react-native-bundle-insights analyze --bundle ./ios/main.jsbundle
-
-# Open interactive visualization
-npx react-native-bundle-insights analyze --open
-```
+The unified dashboard will open automatically at http://localhost:8893 with all 5 tabs populated!
 
 ## CLI Commands
 
-### `analyze`
+### `all` - Complete Analysis (⭐ Recommended)
 
-Analyze your React Native bundle and get detailed insights.
+Run all analyses together and open the unified dashboard.
 
 ```bash
-npx react-native-bundle-insights analyze [options]
+npx react-native-bundle-insights all [options]
 ```
 
 **Options:**
-
-- `-b, --bundle <path>` - Path to the bundle file
-- `-p, --platform <platform>` - Platform: ios or android (default: ios)
-- `--dev` - Analyze development bundle (default: false)
-- `-o, --output <path>` - Output directory for reports (default: .rn-bundle-analyzer)
-- `--json` - Generate JSON report
-- `--open` - Open interactive web visualization
-- `--port <port>` - Port for visualization server (default: 8888)
+- `-p, --project <path>` - Project root directory (default: current directory)
+- `-b, --bundle <path>` - Path to bundle file (optional)
+- `-s, --sourcemap <path>` - Path to sourcemap file (optional)
+- `--platform <platform>` - Platform: ios or android (default: ios)
+- `--port <port>` - Port for dashboard server (default: 8893)
 
 **Examples:**
-
 ```bash
-# Basic analysis
-npx react-native-bundle-insights analyze
+# Run all analyses (auto-detect bundle)
+npx react-native-bundle-insights all
 
-# Analyze Android bundle
-npx react-native-bundle-insights analyze --platform android
+# Specify bundle path
+npx react-native-bundle-insights all --bundle ./ios/main.jsbundle
 
-# Generate JSON report
-npx react-native-bundle-insights analyze --json
+# Android project
+npx react-native-bundle-insights all --platform android
 
-# Open web dashboard
-npx react-native-bundle-insights analyze --open
-
-# Specify custom bundle path
-npx react-native-bundle-insights analyze --bundle ./path/to/bundle.js
+# Custom port
+npx react-native-bundle-insights all --port 3000
 ```
 
-### `server`
+### `bundle-treemap` - Bundle Size Analysis
 
-Start the visualization server independently.
+Analyze bundle size and visualize dependencies with an interactive treemap.
 
 ```bash
-npx react-native-bundle-insights server [options]
+npx react-native-bundle-insights bundle-treemap [options]
 ```
 
 **Options:**
+- `-b, --bundle <path>` - Path to bundle file
+- `-s, --sourcemap <path>` - Path to sourcemap file
+- `--platform <platform>` - Platform: ios or android (default: ios)
+- `--open` - Open web visualization (default: true)
+- `--port <port>` - Port for visualization server (default: 8888)
 
-- `-p, --port <port>` - Port for the server (default: 8888)
-- `-d, --data <path>` - Path to analysis data file
+### `unused-code` - Dead Code Detection
+
+Find unused files, dependencies, and imports.
+
+```bash
+npx react-native-bundle-insights unused-code [options]
+```
+
+**Options:**
+- `-p, --project <path>` - Project root directory
+- `-e, --entry <path>` - Entry file (default: index.js)
+- `--open` - Open web visualization (default: true)
+- `--port <port>` - Port for server (default: 8891)
+
+### `security` - Security Analysis
+
+Scan for hardcoded secrets, API keys, PII, and security issues.
+
+```bash
+npx react-native-bundle-insights security [options]
+```
+
+**Options:**
+- `-p, --project <path>` - Project root directory
+- `--open` - Open web visualization (default: true)
+- `--port <port>` - Port for server (default: 8892)
+
+**Detects:**
+- 🔴 AWS keys, Firebase keys, GitHub tokens
+- 🔴 Hardcoded passwords and database credentials
+- 🟡 Email addresses, phone numbers, IP addresses
+- 🟠 eval() usage, disabled SSL verification
+- 🟡 Console.log statements, insecure HTTP URLs
+- 🟠 SQL injection risks, weak crypto algorithms
+
+### `assets` - Asset & Image Analysis
+
+Analyze assets, detect large images, find duplicates, and get optimization suggestions.
+
+```bash
+npx react-native-bundle-insights assets [options]
+```
+
+**Options:**
+- `-p, --project <path>` - Project root directory
+- `--open` - Open web visualization (default: true)
+- `--port <port>` - Port for server (default: 8895)
+
+**Analyzes:**
+- 📊 Total asset count and size
+- 🖼️ Large images (>200KB medium, >500KB high)
+- 🔄 Duplicate assets using MD5 hashing
+- ♻️ Unoptimized formats (suggests WebP conversion)
+- 🗑️ Unused assets (not referenced in code)
+- 💰 Potential savings calculation
 
 ## Package.json Scripts
 
@@ -130,10 +189,12 @@ Add these scripts to your `package.json`:
 ```json
 {
   "scripts": {
-    "bundle:ios": "react-native bundle --platform ios --dev false --entry-file index.js --bundle-output ./ios/main.jsbundle",
-    "bundle:android": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output ./android/app/src/main/assets/index.android.bundle",
-    "analyze": "npm run bundle:ios && react-native-bundle-insights analyze --open",
-    "analyze:android": "npm run bundle:android && react-native-bundle-insights analyze --platform android --open"
+    "bundle:ios": "react-native bundle --platform ios --dev false --entry-file index.js --bundle-output ./ios/main.jsbundle --sourcemap-output ./ios/main.jsbundle.map",
+    "bundle:android": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output ./android/app/src/main/assets/index.android.bundle --sourcemap-output ./android/app/src/main/assets/index.android.bundle.map",
+    "analyze": "npm run bundle:ios && react-native-bundle-insights all",
+    "analyze:quick": "react-native-bundle-insights all",
+    "analyze:security": "react-native-bundle-insights security",
+    "analyze:assets": "react-native-bundle-insights assets"
   }
 }
 ```
@@ -141,131 +202,106 @@ Add these scripts to your `package.json`:
 Then run:
 
 ```bash
+# Complete analysis with bundle generation
 npm run analyze
+
+# Quick analysis (no bundle generation)
+npm run analyze:quick
+
+# Security scan only
+npm run analyze:security
+
+# Asset analysis only
+npm run analyze:assets
 ```
 
-## Programmatic Usage
+## Unified Dashboard
 
-You can also use the analyzer programmatically in your Node.js scripts:
+The interactive unified dashboard provides **5 comprehensive tabs** all in one place:
 
-```typescript
-import { analyzeBundle, Reporter } from 'react-native-bundle-insights';
+### 📊 Bundle Treemap Tab
+- Interactive tree map visualization
+- Drill-down by clicking on modules
+- Size breakdown by package
+- Hover for detailed information
+- Search and filter capabilities
 
-async function analyze() {
-  const analysis = await analyzeBundle('./ios/main.jsbundle');
+### 📦 Dependencies Tab
+- Complete list of all imported files
+- Used vs unused dependencies
+- Import chain visualization
+- Entry points detection
+- Unused file recommendations
 
-  // Print beautiful CLI report
-  Reporter.printReport(analysis);
+### 🗑️ Unused Imports Tab
+- File-by-file unused import detection
+- Line numbers and import statements
+- Quick fix suggestions
+- Potential bundle size savings
+- Filter by file or import name
 
-  // Access data
-  console.log('Total size:', analysis.totalSize);
-  console.log('Top packages:', analysis.packages.slice(0, 5));
-  console.log('Optimizations:', analysis.optimizations);
-}
+### 🔒 Security Tab
+- **Critical Issues**: Hardcoded secrets, API keys, private keys
+- **High Issues**: Passwords, JWT tokens, weak crypto
+- **Medium Issues**: PII (emails, phone numbers), insecure URLs
+- **Low Issues**: Console.log statements, hardcoded localhost
+- Severity-based color coding
+- File path and line number for each issue
+- Specific recommendations for fixing
+- Filter by severity or issue type
 
-analyze();
-```
+### 🖼️ Assets Tab
+- **Summary**: Total assets, size, image count
+- **Large Images**: Files >200KB with compression recommendations
+- **Unoptimized Formats**: PNG/JPG that should be WebP
+- **Duplicate Assets**: Identical files wasting space
+- **Unused Assets**: Assets not referenced in code
+- **Potential Savings**: WebP conversion, compression, duplicate removal
+- Assets by type breakdown
+- Filter by issue type
 
-## Output
+**Dashboard Features:**
+- 🌓 Modern dark theme optimized for readability
+- 📱 Responsive design works on all screen sizes
+- 🎨 Smooth animations and transitions
+- 🔍 Search and filter capabilities
+- 🎯 Project name displayed in header
+- ⚡ Fast loading and navigation
+
+## Output Examples
 
 ### Terminal Output
 
 ```
-╔═══════════════════════════════════════════════════════════════╗
-║                                                               ║
-║        React Native Bundle Insights                           ║
-║                                                               ║
-╚═══════════════════════════════════════════════════════════════╝
+📊 React Native Bundle Insights - Complete Analysis
 
-📦 Bundle Summary
+Running all analyses...
 
-┌──────────────────────┬────────────────────────────────────────┐
-│ Total Bundle Size    │ 2.5 MB                                 │
-│                      │                                        │
-│ Your Code            │ [███████████░░░░░░░░░] 45% (1.1MB)     │
-│ node_modules         │ [█████████████████░░] 50% (1.2MB)      │
-│ React Native         │ [██░░░░░░░░░░░░░░░░░] 5% (125KB)       │
-└──────────────────────┴────────────────────────────────────────┘
+✅ Bundle data saved
+✅ Found 54 unused files, 41 unused imports
+✅ Security scan complete: 665 issues found
+✅ Asset scan complete: 70 assets analyzed
 
-📊 Top 10 Dependencies
+Opening unified dashboard with all tabs...
 
-┌─────────────────────────────────┬─────────┬─────────────┬─────────┐
-│ Package                         │ Size    │ % of Bundle │ Modules │
-├─────────────────────────────────┼─────────┼─────────────┼─────────┤
-│ 1. lodash (4.17.21)            │ 500 KB  │ 20.00%      │ 342     │
-│ 2. moment (2.29.4)             │ 350 KB  │ 14.00%      │ 156     │
-│ 3. react-icons (4.11.0)        │ 200 KB  │ 8.00%       │ 89      │
-└─────────────────────────────────┴─────────┴─────────────┴─────────┘
-
-🎯 Optimization Suggestions
-
-🔴 Replace lodash with lodash-es
-   Package: lodash
-   Current size: 500 KB
-   Potential savings: 400 KB
-
-🔴 Replace moment with date-fns
-   Package: moment
-   Current size: 350 KB
-   Potential savings: 280 KB
-
-💡 Total Potential Savings: 680 KB
+✅ Unified Dashboard running at http://localhost:8893
 ```
 
-### Web Dashboard
+### Web Dashboard Tabs
 
-The interactive web dashboard provides **5 comprehensive tabs**:
-
-#### 📊 Overview Tab
-- Total bundle size with breakdown
-- Code distribution (Your Code vs Dependencies vs React Native)
-- Tree-shaking score summary
-- Quick stats on unused code
-- Top 10 packages table
-
-#### 📦 Packages Tab
-- Complete list of all dependencies
-- Size and percentage for each package
-- Module count per package
-- Sortable and searchable table
-- Helpful instructions if sourcemap is missing
-
-#### 🧹 Dead Code Tab
-- **Unused Files**: Files in your project never imported (with file paths and sizes)
-- **Unused Dependencies**: npm packages installed but never used
-- Estimated savings for each item
-- Reasons why each item is considered unused
-- **Paginated tables** (50 items per page) for easy browsing
-
-#### 🌲 Tree-Shaking Tab
-- **Overall Score**: 0-100 rating with color coding (green ≥80, yellow ≥50, red <50)
-- **Score Breakdown**: ES6 modules, named exports, default exports, side effects checks
-- **Issues Table**: Files using default exports or non-ES6 patterns (paginated)
-- **Side Effects Table**: Detected side effects like console.log, global mutations (paginated)
-- Specific file paths with line numbers
-- Actionable suggestions for each issue
-- Estimated improvement if fixed
-
-#### 💡 Optimizations Tab
-- Smart package replacement suggestions with alternatives
-- Current size vs potential size after optimization
-- Severity indicators (🔴 high, 🟡 medium, 🟢 low)
-- Specific reasons for each suggestion
-- Total potential savings calculation
-
-**Key Features:**
-- Modern dark theme optimized for readability
-- Pagination for large datasets (no more endless scrolling!)
-- Responsive design works on all screen sizes
-- Smooth animations and transitions
-- Project name displayed in header
+All five tabs are accessible from a single dashboard:
+1. **Bundle Treemap** - Visual bundle size analysis
+2. **Dependencies** - Source code and import analysis
+3. **Unused Imports** - Unused import detection
+4. **Security** - Security vulnerabilities and best practices
+5. **Assets** - Image and asset optimization
 
 ## CI/CD Integration
 
 ### GitHub Actions
 
 ```yaml
-name: Bundle Size Check
+name: Bundle Analysis
 
 on: [pull_request]
 
@@ -284,10 +320,10 @@ jobs:
       - name: Generate bundle
         run: npm run bundle:ios
 
-      - name: Analyze bundle
-        run: npx react-native-bundle-insights analyze --json
+      - name: Run complete analysis
+        run: npx react-native-bundle-insights all
 
-      - name: Upload report
+      - name: Upload reports
         uses: actions/upload-artifact@v3
         with:
           name: bundle-analysis
@@ -303,7 +339,7 @@ Create a `.rnbundlerc.json` file in your project root:
   "platform": "ios",
   "bundlePath": "./ios/main.jsbundle",
   "outputDir": ".rn-bundle-analyzer",
-  "port": 8888,
+  "port": 8893,
   "thresholds": {
     "maxBundleSize": 5242880,
     "maxPackageSize": 524288
@@ -313,13 +349,36 @@ Create a `.rnbundlerc.json` file in your project root:
 
 ## Tips for Optimization
 
-### 1. Replace Heavy Libraries
+### 1. Analyze Your Bundle
 
+Use the Bundle Treemap to identify your largest dependencies. Consider replacing heavy libraries with lighter alternatives:
 - **lodash** → **lodash-es** (better tree-shaking)
-- **moment** → **date-fns** (80% smaller)
-- **axios** → **fetch API** or **ky** (smaller alternatives)
+- **moment** → **date-fns** or **day.js** (80% smaller)
+- **axios** → native **fetch API** or **ky** (smaller alternatives)
 
-### 2. Use Dynamic Imports
+### 2. Optimize Images
+
+Based on asset analysis results:
+- Convert PNG/JPG to WebP (30-50% smaller)
+- Compress large images using TinyPNG or ImageOptim
+- Remove duplicate images
+- Delete unused assets
+
+### 3. Fix Security Issues
+
+- Move hardcoded secrets to environment variables
+- Use secure vaults for API keys
+- Remove console.log statements from production
+- Enable HTTPS for all external requests
+- Use strong cryptographic algorithms (SHA-256, AES-256)
+
+### 4. Clean Up Dead Code
+
+- Remove unused files identified in analysis
+- Delete unused dependencies
+- Remove unused imports
+
+### 5. Use Dynamic Imports
 
 ```javascript
 // Instead of
@@ -329,41 +388,130 @@ import HeavyComponent from './HeavyComponent';
 const HeavyComponent = React.lazy(() => import('./HeavyComponent'));
 ```
 
-### 3. Optimize Icon Libraries
+## Screenshots
 
-```javascript
-// Instead of importing all icons
-import { Icon } from 'react-icons/fa';
+### 📊 Bundle Size Analysis
 
-// Import only what you need
-import { FaBeer } from 'react-icons/fa';
+Analyze your bundle composition and identify large packages:
+
+![Bundle Size Analysis](assets/bundleSize.png)
+
+---
+
+### 📦 Dependencies Analysis
+
+See all your dependencies, imports, and unused files at a glance:
+
+![Dependencies Analysis](assets/dependencies.png)
+
+---
+
+### 🗑️ Unused Imports Detection
+
+Find unused imports across your entire codebase with exact line numbers:
+
+![Unused Imports](assets/unused_imports.png)
+
+---
+
+### 🔒 Security Analysis
+
+Comprehensive security scan detecting secrets, vulnerabilities, and best practice violations:
+
+![Security Analysis](assets/security.png)
+
+**Issue Severity Levels:**
+- 🔴 **Critical** - Hardcoded API keys, private keys, database credentials
+- 🟠 **High** - Passwords, JWT tokens, weak cryptography
+- 🟡 **Medium** - PII (emails, phone numbers), insecure URLs
+- 🟢 **Low** - Console.log statements, hardcoded localhost
+
+---
+
+### 🖼️ Assets & Image Analysis
+
+Analyze all your assets, find large images, detect duplicates, and get optimization suggestions:
+
+![Assets Analysis](assets/assets.png)
+
+**What it analyzes:**
+- 📊 **Summary** - Total assets count and size
+- 🖼️ **Large Images** - Files >200KB (medium) or >500KB (high priority)
+- 🔄 **Duplicate Assets** - Identical files using MD5 hashing
+- ♻️ **Unoptimized Formats** - PNG/JPG that should be WebP
+- 🗑️ **Unused Assets** - Assets not referenced in your code
+- 💰 **Potential Savings** - Estimated size reduction
+
+---
+
+## How to Capture Your Own Screenshots
+
+Want to add screenshots to your project documentation? Here's how:
+
+### macOS
+```bash
+# Full screen
+Cmd + Shift + 3
+
+# Selection
+Cmd + Shift + 4
+
+# Window
+Cmd + Shift + 4, then press Space
 ```
 
-### 4. Enable Hermes
+### Windows
+```bash
+# Snipping Tool
+Win + Shift + S
 
-Add to `android/app/build.gradle`:
-
-```gradle
-project.ext.react = [
-    enableHermes: true
-]
+# Full screen
+PrtScn
 ```
+
+### Linux
+```bash
+# Use Screenshot tool or install Flameshot
+sudo apt install flameshot
+flameshot gui
+```
+
+### Tips for Great Screenshots
+1. ✅ Use high resolution (at least 1920x1080)
+2. ✅ Capture in dark mode for consistency
+3. ✅ Include relevant data (not empty states)
+4. ✅ Crop to show only relevant content
+5. ✅ Use PNG format for better quality
+6. ✅ Add annotations if needed (arrows, highlights)
+
+---
 
 ## Troubleshooting
 
 ### Bundle Not Found
 
-If the analyzer can't find your bundle:
+The tool works without a bundle! Only the Bundle Treemap tab requires it. Other analyses (security, assets, unused code) work independently.
 
-1. Make sure you've generated a bundle first
-2. Specify the path explicitly: `--bundle ./path/to/bundle`
+To include bundle analysis:
+1. Generate a bundle first using `npx react-native bundle`
+2. Specify the path: `--bundle ./path/to/bundle`
 3. Check the platform matches: `--platform ios` or `--platform android`
+
+### Port Already in Use
+
+If you get an EADDRINUSE error:
+```bash
+# Kill the process using the port (macOS/Linux)
+lsof -ti:8893 | xargs kill -9
+
+# Or use a different port
+npx react-native-bundle-insights all --port 3000
+```
 
 ### Parse Errors
 
 If the bundle can't be parsed:
-
-1. Ensure the bundle is a production build (not dev)
+1. Ensure the bundle is a production build (`--dev false`)
 2. Try regenerating the bundle
 3. Check Metro bundler version compatibility
 
@@ -371,13 +519,20 @@ If the bundle can't be parsed:
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
 ## License
 
-MIT
+MIT © Noman Akram
 
 ## Support
 
-- GitHub Issues: [https://github.com/nomanaliakram321/react-native-bundle-insights/issues](https://github.com/nomanaliakram321/react-native-bundle-insights/issues)
+- 🐛 GitHub Issues: [https://github.com/nomanaliakram321/react-native-bundle-insights/issues](https://github.com/nomanaliakram321/react-native-bundle-insights/issues)
+- 📧 Email: nomanaliakram321@gmail.com
 
 ---
 

@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bundle Treemap - React Native Bundle Insights</title>
+    <script src="/d3.v7.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0d1117;
+            color: #c9d1d9;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #58a6ff;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+
+        .subtitle {
+            color: #8b949e;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 20px;
+        }
+
+        .stat-label {
+            color: #8b949e;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 600;
+            color: #58a6ff;
+        }
+
+        .treemap-container {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #58a6ff;
+        }
+
+        #treemap {
+            width: 100%;
+            height: 600px;
+            background: #0d1117;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .treemap-node {
+            stroke: #30363d;
+            stroke-width: 1px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .treemap-node:hover {
+            stroke: #58a6ff;
+            stroke-width: 2px;
+        }
+
+        .treemap-label {
+            fill: #c9d1d9;
+            font-size: 12px;
+            font-weight: 500;
+            pointer-events: none;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .treemap-size {
+            fill: #8b949e;
+            font-size: 10px;
+            pointer-events: none;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .tooltip {
+            position: absolute;
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 4px;
+            padding: 12px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            max-width: 300px;
+            z-index: 1000;
+        }
+
+        .tooltip-title {
+            font-weight: 600;
+            color: #58a6ff;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .tooltip-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 4px 0;
+            font-size: 12px;
+        }
+
+        .tooltip-label {
+            color: #8b949e;
+        }
+
+        .tooltip-value {
+            color: #c9d1d9;
+            font-weight: 500;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            border: 1px solid #30363d;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: #8b949e;
+        }
+
+        .spinner {
+            border: 3px solid #21262d;
+            border-top: 3px solid #58a6ff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .breadcrumb {
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: #8b949e;
+        }
+
+        .breadcrumb-item {
+            display: inline-block;
+            cursor: pointer;
+            color: #58a6ff;
+        }
+
+        .breadcrumb-item:hover {
+            text-decoration: underline;
+        }
+
+        .breadcrumb-separator {
+            margin: 0 8px;
+            color: #8b949e;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Bundle Size Treemap</h1>
+        <p class="subtitle">Step 2: Visualize which packages and files take up the most space in your bundle</p>
+
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Loading bundle analysis...</p>
+        </div>
+
+        <div id="content" style="display: none;">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Bundle Size</div>
+                    <div class="stat-value" id="totalSize">0 MB</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Modules</div>
+                    <div class="stat-value" id="totalModules">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Largest Package</div>
+                    <div class="stat-value" id="largestPackage" style="font-size: 18px;">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Packages</div>
+                    <div class="stat-value" id="totalPackages">0</div>
+                </div>
+            </div>
+
+            <div class="treemap-container">
+                <h2 class="section-title">Interactive Bundle Treemap</h2>
+                <div class="breadcrumb" id="breadcrumb">
+                    <span class="breadcrumb-item" data-path="">Bundle Root</span>
+                </div>
+                <div id="treemap"></div>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #3b82f6;"></div>
+                        <span>node_modules</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #10b981;"></div>
+                        <span>Your Code</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #f59e0b;"></div>
+                        <span>React Native Core</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tooltip" id="tooltip"></div>
+    </div>
+
+    <script>
+        let currentData = null;
+        let currentPath = [];
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function getColor(name, path) {
+            if (path.includes('node_modules')) return '#3b82f6';
+            if (name === 'react-native' || path.includes('@react-native')) return '#f59e0b';
+            return '#10b981';
+        }
+
+        function buildHierarchy(packages) {
+            const root = {
+                name: 'bundle',
+                children: []
+            };
+
+            packages.forEach(pkg => {
+                root.children.push({
+                    name: pkg.name,
+                    value: pkg.size,
+                    path: pkg.name,
+                    percentage: pkg.percentage,
+                    modules: pkg.modules ? pkg.modules.length : 1
+                });
+            });
+
+            return root;
+        }
+
+        function renderTreemap(data) {
+            const container = document.getElementById('treemap');
+            const width = container.clientWidth;
+            const height = 600;
+
+            // Clear previous
+            d3.select('#treemap').html('');
+
+            const svg = d3.select('#treemap')
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height);
+
+            const hierarchy = d3.hierarchy(data)
+                .sum(d => d.value)
+                .sort((a, b) => b.value - a.value);
+
+            const treemap = d3.treemap()
+                .size([width, height])
+                .padding(2)
+                .round(true);
+
+            treemap(hierarchy);
+
+            const nodes = svg.selectAll('g')
+                .data(hierarchy.leaves())
+                .enter()
+                .append('g')
+                .attr('transform', d => `translate(${d.x0},${d.y0})`);
+
+            // Rectangles
+            nodes.append('rect')
+                .attr('class', 'treemap-node')
+                .attr('width', d => d.x1 - d.x0)
+                .attr('height', d => d.y1 - d.y0)
+                .attr('fill', d => getColor(d.data.name, d.data.path || ''))
+                .attr('opacity', 0.8)
+                .on('click', (event, d) => {
+                    if (d.data.children) {
+                        drillDown(d.data);
+                    }
+                })
+                .on('mouseover', function(event, d) {
+                    d3.select(this).attr('opacity', 1);
+                    showTooltip(event, d);
+                })
+                .on('mouseout', function(event, d) {
+                    d3.select(this).attr('opacity', 0.8);
+                    hideTooltip();
+                });
+
+            // Labels
+            nodes.append('text')
+                .attr('class', 'treemap-label')
+                .attr('x', 4)
+                .attr('y', 16)
+                .text(d => {
+                    const width = d.x1 - d.x0;
+                    const name = d.data.name;
+                    if (width < 60) return '';
+                    if (width < 100) return name.substring(0, 8) + '...';
+                    return name;
+                });
+
+            // Size labels
+            nodes.append('text')
+                .attr('class', 'treemap-size')
+                .attr('x', 4)
+                .attr('y', 30)
+                .text(d => {
+                    const width = d.x1 - d.x0;
+                    if (width < 60) return '';
+                    return formatBytes(d.value);
+                });
+        }
+
+        function showTooltip(event, d) {
+            const tooltip = document.getElementById('tooltip');
+            tooltip.innerHTML = `
+                <div class="tooltip-title">${d.data.name}</div>
+                <div class="tooltip-row">
+                    <span class="tooltip-label">Size:</span>
+                    <span class="tooltip-value">${formatBytes(d.value)}</span>
+                </div>
+                <div class="tooltip-row">
+                    <span class="tooltip-label">Percentage:</span>
+                    <span class="tooltip-value">${d.data.percentage ? d.data.percentage.toFixed(2) : '0'}%</span>
+                </div>
+                ${d.data.modules ? `
+                <div class="tooltip-row">
+                    <span class="tooltip-label">Modules:</span>
+                    <span class="tooltip-value">${d.data.modules}</span>
+                </div>
+                ` : ''}
+            `;
+            tooltip.style.left = (event.pageX + 10) + 'px';
+            tooltip.style.top = (event.pageY + 10) + 'px';
+            tooltip.style.opacity = 1;
+        }
+
+        function hideTooltip() {
+            document.getElementById('tooltip').style.opacity = 0;
+        }
+
+        async function loadData() {
+            try {
+                console.log('Fetching bundle data...');
+                const response = await fetch('/api/bundle-analysis');
+                console.log('Response status:', response.status);
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`HTTP ${response.status}: ${errorData.error || 'Unknown error'}`);
+                }
+
+                const data = await response.json();
+                console.log('Data loaded:', data);
+
+                currentData = data;
+
+                // Update stats
+                document.getElementById('totalSize').textContent = formatBytes(data.totalSize);
+
+                // Count total modules from all packages
+                let totalModules = 0;
+                if (data.packages) {
+                    data.packages.forEach(pkg => {
+                        if (pkg.modules) {
+                            totalModules += pkg.modules.length;
+                        }
+                    });
+                }
+                document.getElementById('totalModules').textContent = totalModules;
+                document.getElementById('totalPackages').textContent = data.packages?.length || 0;
+
+                if (data.packages && data.packages.length > 0) {
+                    const largest = data.packages[0];
+                    document.getElementById('largestPackage').textContent = largest.name;
+                }
+
+                // Hide loading, show content FIRST
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+
+                // Build and render treemap AFTER content is visible
+                // Use setTimeout to ensure DOM has updated
+                setTimeout(() => {
+                    const hierarchy = buildHierarchy(data.packages || []);
+                    renderTreemap(hierarchy);
+                }, 100);
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('loading').innerHTML = `
+                    <p style="color: #f85149;">Error loading bundle data</p>
+                    <p style="font-size: 14px; margin-top: 10px;">${error.message}</p>
+                `;
+            }
+        }
+
+        // Load data on page load
+        loadData();
+
+        // Resize handler
+        window.addEventListener('resize', () => {
+            if (currentData) {
+                const hierarchy = buildHierarchy(currentData.packages || []);
+                renderTreemap(hierarchy);
+            }
+        });
+    </script>
+</body>
+</html>
