@@ -60,6 +60,7 @@ Run all analyses at once and open the unified dashboard:
 
 ```bash
 # Generate bundle first (optional - other analyses work without it)
+# For iOS:
 npx react-native bundle \
   --platform ios \
   --dev false \
@@ -67,17 +68,27 @@ npx react-native bundle \
   --bundle-output ./ios/main.jsbundle \
   --sourcemap-output ./ios/main.jsbundle.map
 
+# For Android:
+npx react-native bundle \
+  --platform android \
+  --dev false \
+  --entry-file index.js \
+  --bundle-output ./android/app/src/main/assets/index.android.bundle \
+  --sourcemap-output ./android/app/src/main/assets/index.android.bundle.map
+
 # Run complete analysis
 npx react-native-bundle-insights all
 ```
 
 This will analyze:
-- ✅ Bundle size and dependencies (if bundle exists)
-- ✅ Source code and unused files
-- ✅ Security issues and best practices
-- ✅ Assets and images
+- ✅ Bundle size and dependencies (if bundle exists - platform-specific)
+- ✅ Source code and unused files (works for both iOS & Android)
+- ✅ Security issues and best practices (works for both iOS & Android)
+- ✅ Assets and images (works for both iOS & Android)
 
 The unified dashboard will open automatically at http://localhost:8893 with all 5 tabs populated!
+
+**Note:** The tool works with **both iOS and Android**. Most analyses (4 out of 5 tabs) work without a bundle. Only the Bundle Treemap tab requires a platform-specific bundle.
 
 ## CLI Commands
 
